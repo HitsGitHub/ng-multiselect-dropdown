@@ -26,34 +26,7 @@
             },
             {
               "name": "Ujjain"
-            }
-          
-          ]
-        },
-        {
-          "id": 2,
-          "name": "Rajasthan",
-          "countryName": "India",
-          "values": [
-            {
-              "name": "Udaipur"
-            },{
-              "name": "Jaipur"
-            }
-          ]
-        },
-        {
-          "id": 3,
-          "name": "Andhra Pradesh",
-          "countryName": "India",
-          "values": [
-            {
-              "name": "Vijayawada"
-            },
-            {
-              "name": "Tirupati"
-            }
-           
+            }  
           ]
         }
       ]

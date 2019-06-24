@@ -12,12 +12,14 @@ import { JsonServiceService } from 'src/app/json-service.service';
 export class AppComponent implements OnInit {
   myForm: FormGroup;
   submitted = false;
-  mul_city = [];
-  filteredStates: any[];
-  filteredCity: any[];
-  storeCities: any = [];
+  selectedState = [];
+  selectedCountry =[];
+  filteredStates =[];
+  filteredCity = [];
+  storeCities = [];
   countries = [];
   cities = [];
+  saveCity =[];
   limitSelection = false;
   dropdownSettings: any = {};
   dropdownSettings1: any = {};
@@ -25,7 +27,6 @@ export class AppComponent implements OnInit {
   constructor(private formBuilder: FormBuilder,
     private JSon: JsonServiceService, private http: HttpClient) {
     this.JSon.getJsonData().subscribe(data => {
-      console.log("data", data);
       this.countries = data;
       this.dropdownSettings1 = {
         singleSelection: true,
@@ -36,22 +37,20 @@ export class AppComponent implements OnInit {
       for (let country of this.countries) {
         this.cities.push(country.cities);
       }
-      console.log("this.cities", this.cities);
     })
   }
 
   ngOnInit() {
     this.myForm = this.formBuilder.group({
-      country: [],
-      state: [],
+      country :new FormControl,
+      state: new FormControl,
       chkbox: new FormArray([]),
-
     })
-    this.addchkbox();
+    
   }
   onSelectCountry(cuntry) {
+    this.selectedCountry = cuntry ;    
     this.filteredStates = this.countries.find(con => con.countryName == cuntry).cities;
-    console.log("this.filteredStates", this.filteredStates);
     this.dropdownSettings = {
       singleSelection: false,
       idField: 'id',
@@ -63,48 +62,36 @@ export class AppComponent implements OnInit {
     };
   }
   deselectCountry(deselectCountry) {
-    console.log("DeselectCountry", deselectCountry);
-    this.filteredCity.splice(0);
+    this.filteredStates = [];
+    this.filteredCity = [];
+    this.myForm.reset();
   }
   onStateSelect(state) {
-    this.mul_city.push(state.name);
-    console.log("Mul_city", this.mul_city);
-
-    for (var j = 0; j <= this.mul_city.length; j++) {
-      this.filteredCity = this.filteredStates.find(con => con.name[j] === state.name[j]).values;
+    this.selectedState.push(state.name);
+    for (var j = 0; j <= this.selectedState.length; j++) {
+      this.filteredCity = this.filteredStates.find(con => con.name[j] === state.name[j]).values;j
+      this.storeCities.push(this.filteredCity[j].name);      
     }
-    console.log("filtered City", this.filteredCity);
-    this.storeCities.push(this.filteredCity);
-    console.log("storesCity", this.storeCities);
   }
   onStateDeSelect(deSelectState) {
     console.log(deSelectState);
     this.filteredCity.splice(0);
   }
-
-  private addchkbox() {
-    this.filteredCity.map((o, i) => {
-      const control = new FormControl(i == 0); // if first item set to true, else false
-      (this.myForm.controls.chkbox as FormArray).push(control);
-    });
-  }
-
   onSubmit() {
     this.submitted = true;
-    console.log("submitted");
-    console.log("this.myForm.value", this.myForm.value);
 
-    this.filteredCity.map((o, i) => {
+   this.filteredCity.map((o, i) => {
       const control = new FormControl(i === 0);  // if first item set to true, else false
       (this.myForm.controls.chkbox as FormArray).push(control);
     });
-    const selectedOrderIds = this.myForm.value.chkbox.map((v, i) => v ? this.filteredCity[i].name : this.filteredCity[i].name).filter(v => v !== null);
-    console.log("selectedCheckboxOrderIDs", selectedOrderIds);
+    const selectedOrderIds = this.myForm.value.chkbox.map((v, i) =>
+     v ? this.storeCities[i].name : this.storeCities[i].name).filter(v => v !== null);
     (this.myForm.controls.chkbox as FormArray).setValue(selectedOrderIds);
+
     localStorage.setItem('Form_Data', JSON.stringify(this.myForm.value));
     this.myForm.reset();
   }
-  toggleCloseDropdownSelection() {
+ toggleCloseDropdownSelection() {
     this.closeDropdownSelection = !this.closeDropdownSelection;
     this.dropdownSettings1 = Object.assign({}, this.dropdownSettings1, { closeDropDownOnSelection: this.closeDropdownSelection });
   }
@@ -115,4 +102,17 @@ export class AppComponent implements OnInit {
       this.dropdownSettings = Object.assign({}, this.dropdownSettings, { limitSelection: null });
     }
   }
+  saveItem(val,i){ 
+    console.log(val);
+    
+    if(localStorage.getItem('saveCity')){
+       this.saveCity = JSON.parse(localStorage.getItem('saveCity'));
+       this.saveCity.push(val);
+       localStorage.setItem('saveCity',JSON.stringify(this.saveCity));
+     }else{
+       this.saveCity.push(val);
+       localStorage.setItem('saveCity',JSON.stringify(this.saveCity));
+ 
+      } 
+    }
 }
